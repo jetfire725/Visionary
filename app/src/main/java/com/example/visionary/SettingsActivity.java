@@ -12,6 +12,8 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    //This activity allows the user to change preferences.
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
     }
 
+    //this method contains two color picker dialogs, text and BG
     public void openColorPicker(View v){
         SharedPreferences settings = getSharedPreferences("settings", 0);
         final String type = v.getResources().getResourceEntryName(v.getId());
@@ -45,6 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    //Saves the users settings to a file called "settings" that is accessed my the reader activity
     public void saveSettings(String type, int color){
         SharedPreferences settings = getSharedPreferences("settings", 0);
         SharedPreferences.Editor editor = settings.edit();

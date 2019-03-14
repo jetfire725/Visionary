@@ -15,6 +15,8 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
+    //Currently, this activity's only purpose is the capture the image and start the next activity.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -48,6 +48,7 @@
             android:text="ZOOM"
             android:layout_centerVertical="true"
             android:textSize="16dp"
+            android:textColor="#FFFFFF"
             android:layout_toRightOf="@+id/minusButton"/>
 
         <Button

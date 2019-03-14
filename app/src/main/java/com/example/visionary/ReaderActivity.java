@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 public class ReaderActivity extends AppCompatActivity {
 
+    //This activity displays the text the user. And implements the users zoom settings
+
     TextView output;
     String text;
     float defaultTextSize = 36;
@@ -22,15 +24,15 @@ public class ReaderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_reader);
-        TextView fontText = (TextView)findViewById(R.id.fontText);
-        fontText.setTextColor(Color.WHITE);
     }
+
     public void startSettings(View v){
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
+
+    //Refreshes the text with the users settings.
     public void updateDisplay(){
         runOnUiThread(new Runnable() {
             public void run() {
@@ -43,6 +45,7 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
     }
+    //Adjusts the text size
     public void zoom(View v){
         String buttonName = getResources().getResourceEntryName(v.getId());
         if (buttonName.equals("minusButton")){
