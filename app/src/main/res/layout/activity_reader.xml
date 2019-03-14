@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ReaderActivity"
+    android:background="#000000">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/options"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/outputText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice."
+            android:textIsSelectable="true"
+            tools:ignore="UnknownId" />
+
+    </ScrollView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@color/colorPrimary"
+        android:id="@+id/options">
+
+        <Button
+            android:id="@+id/minusButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:onClick="zoom"
+            android:text="-"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/fontText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ZOOM"
+            android:layout_centerVertical="true"
+            android:textSize="16dp"
+            android:layout_toRightOf="@+id/minusButton"/>
+
+        <Button
+            android:id="@+id/plusButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontText"
+            android:onClick="zoom"
+            android:text="+"
+            android:textSize="20dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="startSettings"
+            android:text="Settings" />
+    </RelativeLayout>
+
+
+</RelativeLayout>
