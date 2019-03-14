@@ -33,9 +33,14 @@ public class MainActivity extends AppCompatActivity {
             magicBox(imageBitmap);
 
 
+
         }
     }
 
+    //HERE IS THE BITMAP IMAGE FUNCTION
+    //TODO: PASS THE IMAGE TO YOUR CODE (THREAD, CLASS ETC)
+    //RIGHT NOW, NOTHING IS DONE WITH THE IMAGE, AND THE READER ACTIVITY IS STARTED
+    //WHEN YOUR CODE IS DONE, YOU NEED TO START THE READER ACTIVITY AND GIVE IT THE STRING
     public void magicBox(Bitmap x){
         Intent intent = new Intent(this, ReaderActivity.class);
         startActivity(intent);
