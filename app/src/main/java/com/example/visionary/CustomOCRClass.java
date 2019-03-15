@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -52,7 +56,8 @@ public class CustomOCRClass {
 
     public CustomOCRClass(Bitmap b, Context context) {
         this.context = context;
-        this.srcBitmap = b;
+        // attempt to grayscale bitmap to improve accuracy:
+        this.srcBitmap = toGrayscale(b);
 
 
 
@@ -66,6 +71,23 @@ public class CustomOCRClass {
 //        System.out.println("MeanConfidence: " + ocrHandler.meanConfidence());
 
         return extractText(this.srcBitmap);
+    }
+
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
     }
 
     public void resetImage(Bitmap b) {
