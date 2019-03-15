@@ -58,6 +58,7 @@ public class CustomOCRClass {
         this.context = context;
         // attempt to grayscale bitmap to improve accuracy:
         this.srcBitmap = toGrayscale(b);
+        this.srcBitmap = Bitmap.createScaledBitmap(this.srcBitmap, 2480, 3508, true);
 
 
 
@@ -161,6 +162,7 @@ public class CustomOCRClass {
         }
 
         tessBaseApi.init(DATA_PATH, lang);
+
 
 
         Log.d(TAG, "Training file loaded");
