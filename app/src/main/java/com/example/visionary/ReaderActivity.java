@@ -25,6 +25,7 @@ public class ReaderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
+        this.text = getIntent().getExtras().getString("resultString");
     }
 
     public void startSettings(View v){
@@ -41,6 +42,9 @@ public class ReaderActivity extends AppCompatActivity {
                 output.setTextColor(settings.getInt("fontColor", Color.WHITE));
                 output.setBackgroundColor(settings.getInt("bgColor", Color.BLACK));
                 output.setTextSize(1,defaultTextSize);
+                // set output text:
+                output.setText(text);
+
                 output.invalidate();
             }
         });
