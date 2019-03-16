@@ -1,12 +1,16 @@
 package com.example.visionary;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,12 +21,48 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
 
     //Currently, this activity's only purpose is the capture the image and start the next activity.
+    final int MY_PERMISSIONS_REQUEST =2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA},
+                    MY_PERMISSIONS_REQUEST);
+        } else {
+            startCamera();
+        }
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    startCamera();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
+    public void startCamera() {
         Intent x = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //File photo = new File(Environment.getExternalStorageDirectory(),  "Pic.jpg");
         startActivityForResult(x, 1);
@@ -35,11 +75,8 @@ public class MainActivity extends AppCompatActivity {
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             magicBox(imageBitmap);
 
-
-
         }
     }
-
     //HERE IS THE BITMAP IMAGE FUNCTION
     //TODO: PASS THE IMAGE TO YOUR CODE (THREAD, CLASS ETC)
     //RIGHT NOW, NOTHING IS DONE WITH THE IMAGE, AND THE READER ACTIVITY IS STARTED
