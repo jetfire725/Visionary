@@ -1,6 +1,7 @@
 package com.example.visionary;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
@@ -16,6 +18,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicConvolve3x3;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -25,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.googlecode.leptonica.android.Pix;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -59,6 +66,17 @@ public class CustomOCRClass {
         // attempt to grayscale bitmap to improve accuracy:
         this.srcBitmap = toGrayscale(b);
         this.srcBitmap = Bitmap.createScaledBitmap(this.srcBitmap, 2480, 3508, true);
+        //Attempt to remove some image noise:
+        // This method actually decreased my confidence by approx. 20%.
+//        this.srcBitmap = removeNoise(this.srcBitmap);
+        // Attempt to sharpen bitmap if device supports api level 17 or above:
+        boolean trySharpen = false;
+        if(android.os.Build.VERSION.SDK_INT >= 17 && trySharpen) {
+            float[] sharp = { -0.15f, -0.15f, -0.15f, -0.15f, 2.2f, -0.15f, -0.15f,
+                    -0.15f, -0.15f
+            };
+            this.srcBitmap = doSharpen(this.srcBitmap, sharp);
+        }
 
 
 
@@ -178,5 +196,54 @@ public class CustomOCRClass {
         System.out.println("Resulting Text: " + extractedText);
         System.out.println("Mean Confidence of OCR: " + meanConfiedence);
         return extractedText;
+    }
+
+    //RemoveNoise
+    public Bitmap removeNoise(Bitmap bmap) {
+        // Turns bitmap completely black and white after grayscaling it.
+        // The intention of this method is to go through each pixel of the bitmap and see if the rgb values
+        // are over or under a certain threshold. If they are too red,blue, and green, the pixel is dark gray.
+        // In the case of a dark gray pixel, I should change it to pure black. This means OCR will ignore that pixel.
+        // If the pixel is below that color threshold, the pixel is light gray. I should change it to
+        // white so it is picked up by OCR easier.
+
+        for (int x = 0; x < bmap.getWidth(); x++) {
+            for (int y = 0; y < bmap.getHeight(); y++) {
+                int pixelColor = bmap.getPixel(x, y);
+                int red = Color.red(pixelColor);
+                int blue = Color.blue(pixelColor);
+                int green = Color.green(pixelColor);
+                int alpha = Color.alpha(pixelColor);
+                if (red < 162 && blue < 162 && green < 162)
+                    bmap.setPixel(x, y, Color.BLACK);
+                else if (red > 162 && blue < 162 && green < 162)
+                    bmap.setPixel(x, y, Color.WHITE);
+            }
+        }
+
+        return bmap;
+    }
+    @TargetApi(17)
+    public Bitmap doSharpen(Bitmap original, float[] radius) {
+        Bitmap bitmap = Bitmap.createBitmap(
+                original.getWidth(), original.getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        RenderScript rs = RenderScript.create(this.context);
+
+        Allocation allocIn = Allocation.createFromBitmap(rs, original);
+        Allocation allocOut = Allocation.createFromBitmap(rs, bitmap);
+
+        ScriptIntrinsicConvolve3x3 convolution
+                = ScriptIntrinsicConvolve3x3.create(rs, Element.U8_4(rs));
+        convolution.setInput(allocIn);
+        convolution.setCoefficients(radius);
+        convolution.forEach(allocOut);
+
+        allocOut.copyTo(bitmap);
+        rs.destroy();
+
+        return bitmap;
+
     }
 }
