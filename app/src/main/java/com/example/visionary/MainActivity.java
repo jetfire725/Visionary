@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    //this method creates the image file the camera intent will use
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
