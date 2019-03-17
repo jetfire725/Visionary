@@ -18,14 +18,16 @@ public class ReaderActivity extends AppCompatActivity {
     //This activity displays the text the user. And implements the users zoom settings
 
     TextView output;
-    String text;
+    String text= "hello";
     float defaultTextSize = 36;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
-        this.text = getIntent().getExtras().getString("resultString");
+
+        SharedPreferences currentText = getSharedPreferences("currentText", 0);
+        this.text = currentText.getString("currentString", "Error: No String found.");
     }
 
     public void startSettings(View v){
