@@ -20,6 +20,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -92,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
+        Log.v("MyTag", imageFileName);
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -100,12 +108,19 @@ public class MainActivity extends AppCompatActivity {
         );
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
+        Log.v("MyTag", "" + currentPhotoPath);
         return image;
     }
 
     //code that takes image to OCR class for processing
     public void magicBox(Bitmap x){
+        File file = new File(currentPhotoPath);
+        String rotationString = splitStringForOrientation(testMetaData(file));
+        Log.v("SplitResult", rotationString);
+
         CustomOCRClass ocrHandler = new CustomOCRClass(x, this);   // Create magic box ocr object:
+
+        ocrHandler.setImageRotationString(rotationString);
 
         String resultOfOCR = ocrHandler.performOCR();    // perform OCR, return string result:
 
@@ -114,12 +129,69 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = currentText.edit();
         editor.putString("currentString", resultOfOCR);
         editor.apply();
-        File file = new File(currentPhotoPath);
+
         file.delete();
 
 
         Intent intent = new Intent(this, ReaderActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public String testMetaData(File f) {
+        try {
+            Metadata metadata = JpegMetadataReader.readMetadata(f);
+
+           return print(metadata, "Using JpegMetadataReader");
+        } catch (JpegProcessingException e) {
+            print(e);
+        } catch (IOException e) {
+            print(e);
+        }
+        return null;
+    }
+
+    private String splitStringForOrientation(String s) {
+        // This should return "Right side, top (Rotate 90 CW) for my Galaxy S8.
+        return s.split("Orientation -")[1].split("X Resolution")[0];
+    }
+
+    private static String print(Metadata metadata, String method)
+    {
+        String returnString = "";
+        System.out.println();
+        System.out.println("-------------------------------------------------");
+        System.out.print(' ');
+        System.out.print(method);
+        System.out.println("-------------------------------------------------");
+        System.out.println();
+
+        //
+        // A Metadata object contains multiple Directory objects
+        //
+        for (Directory directory : metadata.getDirectories()) {
+
+            //
+            // Each Directory stores values in Tag objects
+            //
+            for (Tag tag : directory.getTags()) {
+                System.out.println(tag);
+                returnString += tag + " ";
+            }
+
+            //
+            // Each Directory may also contain error messages
+            //
+            for (String error : directory.getErrors()) {
+                System.err.println("ERROR: " + error);
+                returnString += error + " ";
+            }
+        }
+        return returnString;
+    }
+
+    private static void print(Exception exception)
+    {
+        System.err.println("EXCEPTION: " + exception);
     }
 }

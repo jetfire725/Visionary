@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +57,7 @@ public class CustomOCRClass {
     Bitmap srcBitmap;
     TessBaseAPI tessBaseApi;
     Context context;
+    public String imageRotationString;
 
     private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractSample/";
     private static final String TESSDATA = "tessdata";
@@ -63,20 +65,25 @@ public class CustomOCRClass {
 
     public CustomOCRClass(Bitmap b, Context context) {
         this.context = context;
+        this.srcBitmap = b;
+
         // attempt to grayscale bitmap to improve accuracy:
+
         this.srcBitmap = toGrayscale(b);
-        this.srcBitmap = Bitmap.createScaledBitmap(this.srcBitmap, 2480, 3508, true);
+//        this.srcBitmap = Bitmap.createScaledBitmap(this.srcBitmap, 2480, 3508, true);
         //Attempt to remove some image noise:
-        // This method actually decreased my confidence by approx. 20%.
-//        this.srcBitmap = removeNoise(this.srcBitmap);
+        this.srcBitmap = removeNoise(this.srcBitmap);
         // Attempt to sharpen bitmap if device supports api level 17 or above:
-        boolean trySharpen = false;
+        boolean trySharpen = true;
         if(android.os.Build.VERSION.SDK_INT >= 17 && trySharpen) {
             float[] sharp = { -0.15f, -0.15f, -0.15f, -0.15f, 2.2f, -0.15f, -0.15f,
                     -0.15f, -0.15f
             };
             this.srcBitmap = doSharpen(this.srcBitmap, sharp);
         }
+
+        // overwrite camera bitmap with picture in drawable folder for testing:
+//        this.srcBitmap = this.testAppWithDrawable();
 
 
 
@@ -85,6 +92,26 @@ public class CustomOCRClass {
     public String performOCR() {
         System.out.println("Perform OCR Called");
 //        ocrHandler.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);
+        // Have some methods here to determine if we need to rotate our bitmap at all:
+        int rotationAmount = determineEXIFCaseFromString(this.imageRotationString);
+        if(rotationAmount > 0) {
+            // rotate src bitmap
+            this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
+        } else if (rotationAmount < 0) {
+            // Flip and possibly rotate.
+            if(rotationAmount == -1) {
+                // only flip
+                this.srcBitmap = flipBitmap(this.srcBitmap);
+            } else {
+                // flip and rotate by specified amount:
+                rotationAmount = rotationAmount * -1;
+                this.srcBitmap = flipBitmap(this.srcBitmap);
+                this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
+            }
+        } else {
+            // do nothing. We got back a 0 from the determineEXIF function.
+        }
+
         prepareTesseract();
 
 //        System.out.println("MeanConfidence: " + ocrHandler.meanConfidence());
@@ -111,6 +138,12 @@ public class CustomOCRClass {
 
     public void resetImage(Bitmap b) {
         this.srcBitmap = b;
+    }
+
+    public Bitmap testAppWithDrawable() {
+        Bitmap bMap = BitmapFactory.decodeResource(this.context.getResources(),
+                R.drawable.abc);
+        return bMap;
     }
 
     private void prepareTesseract() {
@@ -245,5 +278,73 @@ public class CustomOCRClass {
 
         return bitmap;
 
+    }
+
+    public static Bitmap rotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    public void setImageRotationString(String s) {
+        this.imageRotationString = s;
+    }
+
+    public int determineEXIFCaseFromString(String s) {
+        if (s.equals(" Top, left side ")) {
+            // case 1
+            return 0;
+        }
+        if (s.contains(" Top, right side ")) {
+            // case 2
+            // flip horizontally with matrix.postScale(-1, 1, cx, cy); where cx and cy are the
+            // center of bitmap.
+            // return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            return -1;
+        }
+        if (s.contains(" Bottom, right side ")) {
+            // case 3
+            return 180;
+        }
+        if (s.contains(" Bottom, left side ")) {
+            // case 4
+            // flip horizontally with matrix.postScale(-1, 1, cx, cy); where cx and cy are the
+            // center of bitmap.
+            // return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            // AND ROTATE 180
+            return -180;
+        }
+        if (s.contains(" Left side, top ")) {
+            // case 5
+            // flip horizontally with matrix.postScale(-1, 1, cx, cy); where cx and cy are the
+            // center of bitmap.
+            // return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            // AND ROTATE 90
+            return -90;
+        }
+        if (s.contains(" Right side, top ")) {
+            // case 6, return 90 degrees
+            return 90;
+        }
+        if (s.contains(" Right side, Bottom ")) {
+            // case 7
+            // flip horizontally with matrix.postScale(-1, 1, cx, cy); where cx and cy are the
+            // center of bitmap.
+            // return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            // AND ROTATE 270
+            return -270;
+        }
+        if (s.contains(" Left side, Bottom ")) {
+            // case 8
+            return 270;
+        }
+        return 0;
+    }
+
+    public static Bitmap flipBitmap(Bitmap source) {
+        Matrix matrix = new Matrix();
+        matrix.postScale(-1, 1, source.getWidth()/2f, source.getHeight()/2f);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 }
