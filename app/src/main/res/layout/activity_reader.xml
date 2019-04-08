@@ -18,7 +18,6 @@
             android:id="@+id/outputText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice. Here is a load of text to use for example purposes and testing. hopefully it will suffice."
             android:textIsSelectable="true"
             tools:ignore="UnknownId" />
 
