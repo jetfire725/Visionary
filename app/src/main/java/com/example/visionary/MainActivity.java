@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,6 +19,8 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.drew.imaging.ImageMetadataReader;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     //Currently, this activity purpose is make sure the appropriate permissions are granted, capture the image, and start the next activity.
     final int MY_PERMISSIONS_REQUEST =2;
     String currentPhotoPath;
+    Bitmap image;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
     protected  void onActivityResult(int requestCode, int resultCode, Intent x) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Bitmap imageBitmap = BitmapFactory.decodeFile(currentPhotoPath);
-            magicBox(imageBitmap);
+            //magicBox(imageBitmap);
+            image = imageBitmap;
+            ImageView view = findViewById(R.id.imageView);
+            view.setImageBitmap(image);
         }
     }
 
@@ -113,14 +120,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //code that takes image to OCR class for processing
-    public void magicBox(Bitmap x){
+    public void magicBox(){
+        TextView loading = findViewById(R.id.loading);
+        loading.setText("Loading, please wait...");
+        loading.invalidate();
         File file = new File(currentPhotoPath);
-        String rotationString = splitStringForOrientation(testMetaData(file));
-        Log.v("SplitResult", rotationString);
+        //String rotationString = splitStringForOrientation(testMetaData(file));
+        //Log.v("SplitResult", rotationString);
 
-        CustomOCRClass ocrHandler = new CustomOCRClass(x, this);   // Create magic box ocr object:
+        EthansOCRClass ocrHandler = new EthansOCRClass(image, this);   // Create magic box ocr object:
 
-        ocrHandler.setImageRotationString(rotationString);
+        //ocrHandler.setImageRotationString(rotationString);
 
         String resultOfOCR = ocrHandler.performOCR();    // perform OCR, return string result:
 
@@ -136,6 +146,34 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReaderActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void process (View v){
+        TextView loading = findViewById(R.id.loading);
+        loading.setText("Loading, please wait...");
+        loading.invalidate();
+        magicBox();
+    }
+
+    public void capture(View v){
+        recreate();
+    }
+
+    public void rotate(View v){
+        if (v == findViewById(R.id.rotateLeft)){
+            rotateBitmap(image,270);
+        } else {
+            rotateBitmap(image,90);
+        }
+        ImageView view = findViewById(R.id.imageView);
+        view.setImageBitmap(image);
+        view.invalidate();
+    }
+
+    public void rotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        image = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     public String testMetaData(File f) {
