@@ -19,7 +19,8 @@
             android:label="Settings">
         </activity>
         <activity android:name=".ReaderActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
