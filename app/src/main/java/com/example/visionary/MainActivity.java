@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     final int MY_PERMISSIONS_REQUEST =2;
     String currentPhotoPath;
     Bitmap image;
+    File photoFile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
-        File photoFile = null;
+
         try {
-            photoFile = createImageFile();
+            createImageFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //this method creates the image file the camera intent will use
-    private File createImageFile() throws IOException {
+    private void createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -116,22 +117,12 @@ public class MainActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         Log.v("MyTag", "" + currentPhotoPath);
-        return image;
+        photoFile = image;
     }
 
     //code that takes image to OCR class for processing
-    public void magicBox(){
-        TextView loading = findViewById(R.id.loading);
-        loading.setText("Loading, please wait...");
-        loading.invalidate();
-        File file = new File(currentPhotoPath);
-        //String rotationString = splitStringForOrientation(testMetaData(file));
-        //Log.v("SplitResult", rotationString);
-
+    public void magicBox() throws IOException {
         EthansOCRClass ocrHandler = new EthansOCRClass(image, this);   // Create magic box ocr object:
-
-        //ocrHandler.setImageRotationString(rotationString);
-
         String resultOfOCR = ocrHandler.performOCR();    // perform OCR, return string result:
 
         //saves the resultString in a file that can be access by any activity in the app.
@@ -140,19 +131,27 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("currentString", resultOfOCR);
         editor.apply();
 
-        file.delete();
-
+        photoFile.delete(); //delete photo for cleanup
 
         Intent intent = new Intent(this, ReaderActivity.class);
         startActivity(intent);
         finish();
     }
 
-    public void process (View v){
+    public void process (View v) throws IOException {
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    magicBox();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
         TextView loading = findViewById(R.id.loading);
         loading.setText("Loading, please wait...");
         loading.invalidate();
-        magicBox();
+        thread.start();
     }
 
     public void capture(View v){
@@ -160,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void rotate(View v){
+        photoFile.delete();
         if (v == findViewById(R.id.rotateLeft)){
             rotateBitmap(image,270);
         } else {
@@ -174,62 +174,5 @@ public class MainActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         image = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
-
-    public String testMetaData(File f) {
-        try {
-            Metadata metadata = JpegMetadataReader.readMetadata(f);
-
-           return print(metadata, "Using JpegMetadataReader");
-        } catch (JpegProcessingException e) {
-            print(e);
-        } catch (IOException e) {
-            print(e);
-        }
-        return null;
-    }
-
-    private String splitStringForOrientation(String s) {
-        // This should return "Right side, top (Rotate 90 CW) for my Galaxy S8.
-        return s.split("Orientation -")[1].split("X Resolution")[0];
-    }
-
-    private static String print(Metadata metadata, String method)
-    {
-        String returnString = "";
-        System.out.println();
-        System.out.println("-------------------------------------------------");
-        System.out.print(' ');
-        System.out.print(method);
-        System.out.println("-------------------------------------------------");
-        System.out.println();
-
-        //
-        // A Metadata object contains multiple Directory objects
-        //
-        for (Directory directory : metadata.getDirectories()) {
-
-            //
-            // Each Directory stores values in Tag objects
-            //
-            for (Tag tag : directory.getTags()) {
-                System.out.println(tag);
-                returnString += tag + " ";
-            }
-
-            //
-            // Each Directory may also contain error messages
-            //
-            for (String error : directory.getErrors()) {
-                System.err.println("ERROR: " + error);
-                returnString += error + " ";
-            }
-        }
-        return returnString;
-    }
-
-    private static void print(Exception exception)
-    {
-        System.err.println("EXCEPTION: " + exception);
     }
 }
