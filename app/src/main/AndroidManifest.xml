@@ -9,9 +9,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/visionary_launcher"
+        android:icon="@mipmap/ic_launcher_foreground"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/visionary_launcher"
+        android:roundIcon="@mipmap/visionary_launcher_with_background_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SettingsActivity"

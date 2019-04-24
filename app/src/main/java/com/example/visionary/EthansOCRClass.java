@@ -15,10 +15,12 @@ import java.io.OutputStream;
 public class EthansOCRClass {
     Bitmap srcBitmap;
     Context context;
+    int meanConfidence;
 
     public EthansOCRClass(Bitmap b, Context c) {
         this.srcBitmap = b;
         this.context=c;
+        this.meanConfidence = 0;
     }
 
     public String performOCR() throws IOException {
@@ -39,7 +41,12 @@ public class EthansOCRClass {
         TessBaseAPI tessBaseApi = new TessBaseAPI();
         tessBaseApi.init(Environment.getExternalStorageDirectory().toString() + "/TesseractSample/", "eng");
         tessBaseApi.setImage(this.srcBitmap);
-        return tessBaseApi.getUTF8Text();
+        // Set result of getUTF8Text to a string and recorded mean confidence as variable.
+        // This allows us to close the tessBaseApi.
+        String resultOfOCR = tessBaseApi.getUTF8Text();
+        this.meanConfidence = tessBaseApi.meanConfidence();
+        tessBaseApi.end();
+        return resultOfOCR;
     }
 
 }

@@ -66,13 +66,18 @@ public class CustomOCRClass {
     public CustomOCRClass(Bitmap b, Context context) {
         this.context = context;
         this.srcBitmap = b;
+//        this.srcBitmap = this.testAppWithDrawable();
+
 
         // attempt to grayscale bitmap to improve accuracy:
 
-        this.srcBitmap = toGrayscale(b);
+        this.srcBitmap = toGrayscale(this.srcBitmap);
+
 //        this.srcBitmap = Bitmap.createScaledBitmap(this.srcBitmap, 2480, 3508, true);
         //Attempt to remove some image noise:
+
         this.srcBitmap = removeNoise(this.srcBitmap);
+
         // Attempt to sharpen bitmap if device supports api level 17 or above:
         boolean trySharpen = true;
         if(android.os.Build.VERSION.SDK_INT >= 17 && trySharpen) {
@@ -83,7 +88,6 @@ public class CustomOCRClass {
         }
 
         // overwrite camera bitmap with picture in drawable folder for testing:
-//        this.srcBitmap = this.testAppWithDrawable();
 
 
 
@@ -93,24 +97,24 @@ public class CustomOCRClass {
         System.out.println("Perform OCR Called");
 //        ocrHandler.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);
         // Have some methods here to determine if we need to rotate our bitmap at all:
-        int rotationAmount = determineEXIFCaseFromString(this.imageRotationString);
-        if(rotationAmount > 0) {
-            // rotate src bitmap
-            this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
-        } else if (rotationAmount < 0) {
-            // Flip and possibly rotate.
-            if(rotationAmount == -1) {
-                // only flip
-                this.srcBitmap = flipBitmap(this.srcBitmap);
-            } else {
-                // flip and rotate by specified amount:
-                rotationAmount = rotationAmount * -1;
-                this.srcBitmap = flipBitmap(this.srcBitmap);
-                this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
-            }
-        } else {
-            // do nothing. We got back a 0 from the determineEXIF function.
-        }
+//        int rotationAmount = determineEXIFCaseFromString(this.imageRotationString);
+//        if(rotationAmount > 0) {
+//            // rotate src bitmap
+//            this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
+//        } else if (rotationAmount < 0) {
+//            // Flip and possibly rotate.
+//            if(rotationAmount == -1) {
+//                // only flip
+//                this.srcBitmap = flipBitmap(this.srcBitmap);
+//            } else {
+//                // flip and rotate by specified amount:
+//                rotationAmount = rotationAmount * -1;
+//                this.srcBitmap = flipBitmap(this.srcBitmap);
+//                this.srcBitmap = rotateBitmap(this.srcBitmap, rotationAmount);
+//            }
+//        } else {
+//            // do nothing. We got back a 0 from the determineEXIF function.
+//        }
 
         prepareTesseract();
 
@@ -142,7 +146,7 @@ public class CustomOCRClass {
 
     public Bitmap testAppWithDrawable() {
         Bitmap bMap = BitmapFactory.decodeResource(this.context.getResources(),
-                R.drawable.abc);
+                R.drawable.thebigsleep);
         return bMap;
     }
 
@@ -224,10 +228,10 @@ public class CustomOCRClass {
         } catch (Exception e) {
             Log.e(TAG, "Error in recognizing text.");
         }
-        int meanConfiedence = tessBaseApi.meanConfidence();
+        int meanConfidence = tessBaseApi.meanConfidence();
         tessBaseApi.end();
         System.out.println("Resulting Text: " + extractedText);
-        System.out.println("Mean Confidence of OCR: " + meanConfiedence);
+        System.out.println("Mean Confidence of OCR: " + meanConfidence);
         return extractedText;
     }
 
