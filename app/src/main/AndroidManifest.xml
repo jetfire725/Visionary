@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.visionary">
+    package="com.d42n81.visionary">
 
     <uses-permission android:name="android.permission.CAMERA"
         android:required="true"></uses-permission>
@@ -14,15 +14,15 @@
         android:roundIcon="@mipmap/visionary_launcher_with_background_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity"
-            android:parentActivityName=".ReaderActivity"
+        <activity android:name="com.d42n81.visionary.SettingsActivity"
+            android:parentActivityName="com.d42n81.visionary.ReaderActivity"
             android:label="Settings">
         </activity>
-        <activity android:name=".ReaderActivity"
+        <activity android:name="com.d42n81.visionary.ReaderActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName="com.d42n81.visionary.MainActivity"/>
         <activity
-            android:name=".MainActivity"
+            android:name="com.d42n81.visionary.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -33,7 +33,7 @@
         </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.example.android.fileprovider"
+            android:authorities="com.d42n81.android.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -1,6 +1,5 @@
-package com.example.visionary;
+package com.d42n81.visionary;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;

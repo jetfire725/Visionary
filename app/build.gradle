@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.example.visionary"
+        applicationId "com.d42n81.visionary"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1

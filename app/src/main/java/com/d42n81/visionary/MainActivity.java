@@ -1,4 +1,4 @@
-package com.example.visionary;
+package com.d42n81.visionary;
 
 import android.Manifest;
 import android.content.Intent;
@@ -11,23 +11,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.imaging.jpeg.JpegMetadataReader;
-import com.drew.imaging.jpeg.JpegProcessingException;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (photoFile != null) {
             Uri photoURI = FileProvider.getUriForFile(this,
-                    "com.example.android.fileprovider",
+                    "com.d42n81.android.fileprovider",
                     photoFile);
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);

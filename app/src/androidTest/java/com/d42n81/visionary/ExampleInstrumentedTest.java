@@ -1,4 +1,4 @@
-package com.example.visionary;
+package com.d42n81.visionary;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
